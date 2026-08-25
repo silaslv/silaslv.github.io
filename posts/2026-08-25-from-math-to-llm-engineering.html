@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="从数学到 LLM 工程：一个企业级 AI 应用工程师的成长路径 — 吕绪鑫">
+  <title>从数学到 LLM 工程 · 吕绪鑫</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+</head>
+<body>
+  <div id="progress"></div>
+
+  <nav class="site-nav">
+    <a class="brand" href="/">吕绪鑫</a>
+    <div class="nav-links">
+      <a href="/">首页</a>
+      <a href="/about.html">关于</a>
+      <a href="/posts/" class="active">文章</a>
+      <a href="/resources/">资源</a>
+      <a href="/projects/">项目</a>
+    </div>
+    <div class="nav-right">
+      <button id="theme-toggle" class="icon-btn" aria-label="切换明暗主题">🌙</button>
+      <a class="icon-btn" href="https://github.com/xuxin123456" target="_blank" rel="noopener" aria-label="GitHub">🐙</a>
+    </div>
+  </nav>
+
+  <aside class="toc">
+    <div class="toc-title">目录</div>
+    <a href="#sec-1">一、数学建模</a>
+    <a href="#sec-2">二、空间数据到 GNSS</a>
+    <a href="#sec-3">三、浪潮 HCM Cloud</a>
+    <a href="#sec-4">四、LLM 工程</a>
+    <a href="#sec-4-1" style="padding-left:26px">4.1 本地推理栈</a>
+    <a href="#sec-4-2" style="padding-left:26px">4.2 benchmark</a>
+    <a href="#sec-4-3" style="padding-left:26px">4.3 本地助手</a>
+    <a href="#sec-4-4" style="padding-left:26px">4.4 语音 · 视频</a>
+    <a href="#sec-4-5" style="padding-left:26px">4.5 RAG 与知识库</a>
+    <a href="#sec-5">五、回到企业</a>
+    <a href="#sec-6">六、下一步</a>
+  </aside>
+
+  <main class="container">
+    <header class="article-header">
+      <a class="back" href="/posts/">← 返回文章列表</a>
+      <h1>从数学到 LLM 工程：一个企业级 AI 应用工程师的成长路径</h1>
+      <div class="byline">
+        <span class="author">吕绪鑫</span>
+        <span class="sep">·</span>
+        <span>lyuxuxin@163.com</span>
+        <span class="sep">·</span>
+        <span>2026-08-25</span>
+      </div>
+    </header>
+
+    <article class="article-body">
+      <blockquote>
+        <p>这不是一份简历。简历把经历压缩成一行行标签；这篇想讲清楚一件事——那些看似不相干的经历，是如何在底层连成一条能力链的：<strong>数学建模 → 科学数据处理 → Python 工程 → 企业软件 → LLM 工程</strong>。</p>
+      </blockquote>
+
+      <p class="lead">如果只看我做过的事，很容易得出一个矛盾的印象：一个数学系毕业的人，做过卫星导航数据，写过企业人力资源系统，现在又在折腾大模型本地部署。但如果拉长时间看，每一步都不是转向，而是同一种能力在不同载体上的复用。</p>
+
+      <h2 id="sec-1">一、数学建模：被低估的“底层操作系统”</h2>
+
+      <p>本科在哈尔滨工业大学（威海）读数学与应用数学，系统学完数学分析、高等代数、几何、数值分析。辅修了工商管理，学了经济学、管理学、会计学，也拿过全国大学生数学竞赛省级一等奖。</p>
+
+      <p>坦白说，我至今没用过多少“高等”数学去解决生产问题。数学训练真正留给我的，是两样更底层的东西：</p>
+
+      <ol>
+        <li><strong>把模糊问题形式化</strong>。一个现实问题到手，先定义清楚变量、约束、目标函数，再谈求解。这个习惯在后来的排障和系统设计里反复救场——很多 bug 排查到最后，其实是“问题没定义对”。</li>
+        <li><strong>对“数值结果”的本能怀疑</strong>。数值分析教会我：算法有误差、有收敛条件、有稳定性问题。后来我做 LLM 推理 benchmark 时发现旧数据和新数据对不上，第一反应不是“谁错了”，而是去查测量方法是不是不一致——这种直觉直接来自数值分析的训练。</li>
+      </ol>
+
+      <p>毕业设计做的是高维数据特征提取，这是我第一次真正面对“高维、稀疏、难解释”的数据，也为后面空间数据和画像匹配埋下了伏笔。</p>
+
+      <h2 id="sec-2">二、从空间数据到 GNSS：第一次跑通“从原始数据到结论”的完整链路</h2>
+
+      <p>毕业后进入威海五洲卫星导航科技有限公司。前期做遥感和空间数据：NASA 气候全球分布可视化、全球碳数据可视化、全球验潮站空间分布研究，用聚类分析做空间数据分析。</p>
+
+      <p>这段经历的价值不在“用过聚类”，而在于它逼我建立了一套完整的数据流水线意识：<strong>数据从哪来 → 怎么清洗 → 特征怎么选 → 结果怎么验证 → 怎么可视化呈现</strong>。当时很多东西是笨办法，但“把链路走通”这个动作本身，是后来所有工程工作的原型。</p>
+
+      <p>之后转向 GNSS 导航方向，我自学 Python，从接收机协议和原始数据开始，一路做到数据解析、信号处理、伪距计算、差分定位算法验证，最后打通“原始数据 → 位置解算”的完整链路，还参与了室内定位研究。</p>
+
+      <p>这是对我影响最大的一段经历。它让我第一次亲身体会到：<strong>一个系统里最难的往往不是某个高深的算法，而是把“原始、嘈杂、有歧义的输入”变成“可信、可复现的输出”这条链路上的每一个环节。</strong>这种“从 byte 到结论”的视角，一直延续到今天——现在我做 LLM 工程，关心的同样是“从原始语料/请求到可信结果”这条链路的可靠性。</p>
+
+      <h2 id="sec-3">三、浪潮 HCM Cloud：从算法验证到企业级软件工程</h2>
+
+      <p>之后进入浪潮 HCM Cloud 团队，从数据和算法方向转向企业级 SaaS 后端研发。技术栈是 Python/Tornado、Celery、Redis、SQLAlchemy，参与流程、权限、电子签等核心业务模块，直接面对央国企客户的生产环境。</p>
+
+      <p>这段经历补上了我此前最缺的一块：<strong>规模感</strong>。</p>
+
+      <p>在实验室里，“能跑”就是终点；在企业系统里，“能跑”只是起点。你要考虑的不再是单个算法对不对，而是：这个改动会不会影响几万人的流程？权限边界怎么画？分布式任务怎么重试、怎么幂等？生产环境的性能瓶颈在哪里？出问题了怎么在不影响业务的前提下回滚？</p>
+
+      <p>也是在这里，我开始参与企业 AI 助手的探索，第一次认真思考一个问题：<strong>大模型这种“概率性”的东西，怎么放进一个要求“确定性”的企业系统里？</strong>这个问题后来成了我整个 LLM 工程方向的主线。</p>
+
+      <h2 id="sec-4">四、LLM 工程：把大模型真正跑起来、管起来</h2>
+
+      <p>最近两年，我把自己大部分业余时间都投进了 LLM 工程。方向很明确：不是发论文，而是<strong>在有限的本地硬件上，把大模型从“能调用”做到“能用、可控、可交付”</strong>。</p>
+
+      <h3 id="sec-4-1">4.1 本地推理栈：从 Ollama 到 llama.cpp + ROCm</h3>
+
+      <p>起点是一台 AMD 笔记本（RX 6700S 8GB VRAM + Radeon 680M 核显 + 38GB 内存），跑 llama.cpp + AMD ROCm。很快发现一个关键事实：<strong>在 8GB 显存的消费级笔记本上，“能跑大模型”和“跑得快”是两回事</strong>。</p>
+
+      <p>我把 Ollama 换成了 llama.cpp 直连 ROCm，实测同一批模型，并系统对比了 <code>--fit on</code>（跨卡分配）和 <code>--cpu-moe</code>（专家层放 CPU）两种部署策略。结论反转了我最初的假设：<code>--fit on</code> 全面优于 <code>--cpu-moe</code>，快 15–30%；35B 的 MoE 模型（Qwen3.6-35B-A3B）从 Ollama 时代的 ~11 tok/s 提升到 ~24 tok/s，而 8B 的 MoE 模型能跑到 140+ tok/s。</p>
+
+      <p>投机解码我也做了验证，结论是<strong>在当前环境不成立</strong>：Qwen 不同代模型的词表不兼容导致 draft 模型无法复用，而 ngram 对代码生成无收益；更重要的是，MoE 架构本身已经大幅降低了单 token 的计算量，对推测解码的依赖远低于 dense 模型。这个“试了、证伪了、记录下为什么”的过程，比得到一个“能用”的结果更有价值。</p>
+
+      <h3 id="sec-4-2">4.2 用 benchmark 而不是信仰做决策</h3>
+
+      <p>做基准测试时，我发现新数据与旧数据严重对不上（同一个模型测出 -16% 到 +120% 的差异）。排查下来，原因不是硬件波动，而是<strong>测量方法本身不一致</strong>：llama.cpp 版本变了、冷启动和热启动混在一起、<code>n_predict</code> 长度不统一、Ollama 后端和 llama-cli 直连混用。</p>
+
+      <p>于是我整理了一份 benchmark 最小可复现规范：固定 build hash、固定 prompt 长度、冷启动测三次取中位数、记录 GPU 温度和风扇模式，并明确哪些条件下数据不可直接对比。这件事的教训是普适的：<strong>没有可复现的测量，就没有可靠的工程决策。</strong></p>
+
+      <h3 id="sec-4-3">4.3 一个能“动手”的本地助手：Agent + 工具调用 + 安全边界</h3>
+
+      <p>在这些基础之上，我开发了一个本地 LLM 桌面助手：模型调用、Agent 循环、工具调用（执行命令、读写文件、音量/亮度控制）、多入口（PyQt6 气泡窗口 / 命令行 / Web / KDE Plasmoid），以及双通道 IPC（Unix Socket + DBus）。</p>
+
+      <p>真正值得说的不是功能列表，而是<strong>安全边界的设计</strong>。让 LLM 执行系统命令是一个天然危险的操作，所以我把 CommandValidator（拦截危险命令模式）、AuditLogger（JSONL 审计日志）、工具执行的权限检查做成了共享核心库 <code>llm_core</code> 的一部分，并补了 43 个单元测试。重构 v2.0 的直接原因，就是一次代码审查发现命令注入漏洞和重复代码。这件事让我深刻意识到：<strong>Agent 的“能力”和“失控”往往只隔一层薄薄的校验，而这层校验必须是工程化的，而不是靠 prompt 去求模型“别乱来”。</strong></p>
+
+      <h3 id="sec-4-4">4.4 语音、TTS、视频：把单点能力串成流水线</h3>
+
+      <p>我还在本地搭了一套全离线的语音控制（Vosk 中文 ASR + sherpa-onnx TTS + wespeaker 声纹门），以及一条“一人公司”式的数学视频生产流水线（llama.cpp 解题 → ChatTTS 配音 → PIL 渲染幻灯片 → ffmpeg 合成）。后者有个工程细节：LLM 和 ChatTTS 不能同时占 GPU，于是流水线设计成“LLM 跑完 → pkill llama-server 释放显存 → 再跑 TTS”，用串行复用把 7GB 显存榨干。</p>
+
+      <p>这些项目单看都不大，但它们合起来训练了一种能力：<strong>把异构的模型、工具、运行时编排成一条可复用的流水线</strong>——这正是 AI 平台工程每天都在做的事。</p>
+
+      <h3 id="sec-4-5">4.5 RAG 与知识库：把“记忆”做成可维护的制品</h3>
+
+      <p>我维护了一个本地知识库（Obsidian + Smart Connections RAG），并在调研了 2025–2026 的 Agent 记忆架构后，落地了 Karpathy 的 “LLM wiki” 模式：<code>raw/</code> 存不可变的原始证据，<code>wiki/</code> 存 LLM 编译后的理解，加上 schema 和 lint（健康检查：矛盾、孤儿页、陈旧条目）。目前这套体系有约 190 个条目、55 次 git 提交，配了 <code>kb-validate.sh</code> 做 14 项一致性校验。</p>
+
+      <p>这件事的价值不在“我用上了 RAG”，而在于我想清楚了一个很多人容易混淆的点：<strong>RAG 是从文档里回答问题，而 LLM wiki 是把文档编译成可持续维护的知识制品。</strong>前者解决“查”，后者解决“沉淀”。企业里的 AI 落地，缺的往往不是前者，而是后者。</p>
+
+      <h2 id="sec-5">五、回到企业：AI 服务与企业系统的边界</h2>
+
+      <p>在 HCM 的 AI 助手探索里，我参与落地过一个“智能检索 + 画像匹配”功能，也踩过不少坑，最终形成了一条架构准则，我把它当成目前最重要的经验：</p>
+
+      <blockquote>
+        <p><strong>AI 服务只做“意图识别和画像生成”，真正的硬过滤、评分、结果持久化由业务系统自己完成。</strong></p>
+      </blockquote>
+
+      <p>具体来说：大模型生成岗位画像 → 前端让用户确认/调整 → HCM Core 执行 ES 硬过滤和维度评分 → 结果按批次持久化并携带 <code>evidence</code> 快照。这里有几个生产级细节：</p>
+
+      <ul>
+        <li>软性维度（如工作年限）只降分、不过滤，否则“全员不达标”会退化成“无结果”；</li>
+        <li>聊天气泡里有候选人不代表完整结果页有数据——两者依赖不同的数据来源；</li>
+        <li>每个评分维度的数据源异常要单独隔离，不能因为一个模块报错拖垮整次匹配；</li>
+        <li>结果要持久化快照而非依赖前端临时状态，否则重开页面就丢上下文。</li>
+      </ul>
+
+      <p>这条准则的意义超出了这个功能本身：<strong>它回答了“如何把大模型真正融入企业系统”这个问题的第一步——先分清谁的职责是什么。</strong>大模型擅长“生成和理解”，企业系统擅长“确定性和审计”，把前者放进后者，靠的不是让模型更聪明，而是把边界划清楚。</p>
+
+      <h2 id="sec-6">六、我理解的下一步：如何把大模型“真正”融入企业系统</h2>
+
+      <p>如果让我概括自己的方向，就是：<strong>企业级 LLM 应用 / AI 平台工程 / 私有化部署</strong>。具体到“把大模型真正融入企业系统”，我认为关键是解决三件事：</p>
+
+      <ol>
+        <li><strong>可信的边界</strong>。把“概率性的生成”和“确定性的执行”分层，AI 负责理解和生成，业务系统负责校验、执行和审计。Agent 的能力必须配得上同样强度的安全与可观测约束。</li>
+        <li><strong>可交付的部署</strong>。私有化环境里没有无限的算力，工程上要回答的是：给定硬件，什么模型、什么量化、什么调度策略是可用的？这需要可复现的 benchmark 和选型矩阵，而不是拍脑袋。</li>
+        <li><strong>可持续的沉淀</strong>。企业不缺“能用一次”的 demo，缺的是能把知识持续沉淀、能自我校验、能长期维护的知识系统。这也是我为什么如此看重知识库工程化。</li>
+      </ol>
+
+      <p>我还在路上。数学给了我看问题的方式，GNSS 给了我从原始数据到结论的耐心，HCM 给了我对规模和生产纪律的敬畏，而 LLM 工程正在把这一切重新组装起来。下一篇，我打算写写那个本地 LLM 助手的完整设计——从工具调用的安全边界，到双通道 IPC 的取舍。</p>
+
+      <hr>
+
+      <p class="ending">本文是我的技术成长梳理，也作为个人网站的入口文章。欢迎交流企业级 AI 落地、本地推理部署、知识库工程化相关的话题。</p>
+    </article>
+  </main>
+
+  <button id="top-btn" class="icon-btn" aria-label="返回顶部">↑</button>
+
+  <footer>
+    © 2026 吕绪鑫 · 纯 HTML / CSS / JS 手写 · 由 GitHub Pages 托管
+  </footer>
+
+  <script src="/assets/main.js"></script>
+</body>
+</html>

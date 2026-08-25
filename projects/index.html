@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="吕绪鑫的项目 — LLM 助手 / AI 视频流水线 / 语音控制 / 知识库">
+  <title>项目 · 吕绪鑫</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+</head>
+<body>
+  <div id="progress"></div>
+
+  <nav class="site-nav">
+    <a class="brand" href="/">吕绪鑫</a>
+    <div class="nav-links">
+      <a href="/">首页</a>
+      <a href="/about.html">关于</a>
+      <a href="/posts/">文章</a>
+      <a href="/resources/">资源</a>
+      <a href="/projects/" class="active">项目</a>
+    </div>
+    <div class="nav-right">
+      <button id="theme-toggle" class="icon-btn" aria-label="切换明暗主题">🌙</button>
+      <a class="icon-btn" href="https://github.com/xuxin123456" target="_blank" rel="noopener" aria-label="GitHub">🐙</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="page-header">
+      <h1>项目</h1>
+      <p class="sub">工程实践为主——把大模型可靠、可控地跑起来。</p>
+    </header>
+
+    <section style="padding: 16px 0 32px;">
+      <div class="project-card animate">
+        <div class="head">
+          <h3>本地 LLM 桌面助手</h3>
+          <span class="status soon">整理中 · 即将公开</span>
+        </div>
+        <p>llama.cpp + ROCm 本地推理；Agent 循环 + 工具调用；PyQt6 气泡窗口 / CLI / Web / KDE Plasmoid 多入口；CommandValidator 安全拦截 + 审计日志 + 43 个单元测试。</p>
+        <div class="tags">
+          <span class="tag">Python</span><span class="tag">llama.cpp</span><span class="tag">Agent</span><span class="tag">PyQt6</span><span class="tag">DBus</span>
+        </div>
+        <a class="btn disabled">代码整理后公开</a>
+      </div>
+
+      <div class="project-card animate delay-1">
+        <div class="head">
+          <h3>AI 数学视频生产流水线</h3>
+          <span class="status soon">整理中 · 即将公开</span>
+        </div>
+        <p>单人在 7GB 消费级 GPU 上跑通「题目 → LLM 解题 → ChatTTS 配音 → PIL 渲染 → ffmpeg 合成」；GPU 串行复用 + 多级缓存 + 规则驱动 + 单元测试。</p>
+        <div class="tags">
+          <span class="tag">llama.cpp</span><span class="tag">ChatTTS</span><span class="tag">ffmpeg</span><span class="tag">Pipeline</span>
+        </div>
+        <a class="btn disabled">代码整理后公开</a>
+      </div>
+
+      <div class="project-card animate delay-2">
+        <div class="head">
+          <h3>全离线语音控制</h3>
+          <span class="status soon">整理中 · 即将公开</span>
+        </div>
+        <p>Vosk 中文 ASR + wespeaker 声纹门 + llama.cpp 意图理解 + sherpa-onnx TTS，全程本地无云端，语音控制音量/亮度/对话。</p>
+        <div class="tags">
+          <span class="tag">Vosk</span><span class="tag">sherpa-onnx</span><span class="tag">ASR/TTS</span>
+        </div>
+        <a class="btn disabled">代码整理后公开</a>
+      </div>
+
+      <div class="project-card animate delay-3">
+        <div class="head">
+          <h3>个人知识库工程化</h3>
+          <span class="status private">私有</span>
+        </div>
+        <p>Obsidian + RAG + Karpathy「LLM wiki」模式；raw 证据层 + 编译层 + 14 项一致性校验脚本；约 190 条目、git 版本化。</p>
+        <div class="tags">
+          <span class="tag">Obsidian</span><span class="tag">RAG</span><span class="tag">Knowledge Engineering</span>
+        </div>
+        <a class="btn" href="https://github.com/xuxin123456" target="_blank" rel="noopener">GitHub 主页</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 吕绪鑫 · 纯 HTML / CSS / JS 手写 · 由 GitHub Pages 托管
+  </footer>
+
+  <script src="/assets/main.js"></script>
+</body>
+</html>
