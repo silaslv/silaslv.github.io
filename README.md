@@ -1,7 +1,7 @@
 # 吕绪鑫 · 个人网站
 
 纯静态站点：**HTML + CSS + 原生 JS**，无构建工具、无第三方依赖，推送后由 GitHub Pages 直接渲染。
-在线地址：<https://xuxin123456.github.io>
+在线地址：<https://silaslv.github.io>
 
 ## 结构
 
@@ -30,13 +30,13 @@
 ## 本地预览
 
 ```bash
-cd ~/github-blog && python3 -m http.server 8000   # 打开 http://localhost:8000
+cd ~/pub/site && python3 -m http.server 8000   # 打开 http://localhost:8000
 ```
 
 ## 发布
 
 ```bash
-cd ~/github-blog
+cd ~/pub/site
 git add -A && git commit -m "update site"
 git push
 ```

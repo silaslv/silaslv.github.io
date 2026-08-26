@@ -87,17 +87,17 @@
   }
 
   /* ---------- 邮箱一键复制 ---------- */
-  const copyBtn = document.getElementById("copy-email");
-  if (copyBtn) {
+  Array.from(document.querySelectorAll(".copy-email")).forEach(function (copyBtn) {
     const email = copyBtn.getAttribute("data-email");
     copyBtn.addEventListener("click", function () {
+      const textEl = copyBtn.querySelector(".email-text");
       const done = function () {
-        const original = copyBtn.querySelector(".email-text").textContent;
+        const original = textEl.textContent;
         copyBtn.classList.add("copied");
-        copyBtn.querySelector(".email-text").textContent = "已复制 ✓";
+        textEl.textContent = "已复制 ✓";
         setTimeout(function () {
           copyBtn.classList.remove("copied");
-          copyBtn.querySelector(".email-text").textContent = original;
+          textEl.textContent = original;
         }, 1600);
       };
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -106,11 +106,11 @@
         // 降级：选中文本
         const sel = window.getSelection();
         const range = document.createRange();
-        range.selectNodeContents(copyBtn.querySelector(".email-text"));
+        range.selectNodeContents(textEl);
         sel.removeAllRanges();
         sel.addRange(range);
         done();
       }
     });
-  }
+  });
 })();
