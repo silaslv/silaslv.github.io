@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="从手写 GNSS 解码到 LLM：室内定位链路的推进 — 吕绪鑫">
+  <title>从手写 GNSS 解码到 LLM：室内定位链路的推进 · 吕绪鑫</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+</head>
+<body>
+  <div id="progress"></div>
+
+  <nav class="site-nav">
+    <a class="brand" href="/">吕绪鑫</a>
+    <div class="nav-links">
+      <a href="/">首页</a>
+      <a href="/about.html">关于</a>
+      <a href="/posts/" class="active">文章</a>
+      <a href="/projects/">作品集</a>
+      <a href="/certificates/">证书</a>
+      <a href="/resources/">资源</a>
+    </div>
+    <div class="nav-right">
+      <button id="theme-toggle" class="icon-btn" aria-label="切换明暗主题">🌙</button>
+      <a class="icon-btn" href="https://github.com/silaslv" target="_blank" rel="noopener" aria-label="GitHub">🐙</a>
+    </div>
+  </nav>
+
+  <aside class="toc">
+    <div class="toc-title">目录</div>
+    <a href="#sec-1">一、任务：从协议文档到位置结果</a>
+    <a href="#sec-2">二、一条链路怎么推进</a>
+    <a href="#sec-3">三、现在：LLM 能帮什么</a>
+    <a href="#sec-4">四、一个更本质的迁移</a>
+    <a href="#sec-5">五、小结</a>
+  </aside>
+
+  <main class="container">
+    <header class="article-header">
+      <a class="back" href="/posts/">← 返回文章列表</a>
+      <h1>从手写 GNSS 解码到 LLM：室内定位链路的推进</h1>
+      <div class="byline">
+        <span class="author">作者：吕绪鑫</span>
+        <span class="sep">·</span>
+        <span>方向：企业级 LLM 应用 / AI 平台工程</span>
+      </div>
+    </header>
+
+    <article class="article-body">
+      <p class="lead">这是我“LLM 赋能我接触过的领域”系列的第三篇。前两篇讲了企业人事系统、遥感与选址，这一篇聊我在第一份工作里投入最深的一块：室内高精度定位。</p>
+
+      <h2 id="sec-1">一、任务：从协议文档到位置结果</h2>
+
+      <p>当时的任务是从 GNSS 接收机协议文档出发，把原始数据变成位置结果。</p>
+
+      <p>链路是这样的：</p>
+
+      <pre class="flow">原始接收机数据
+    ↓
+协议解析
+    ↓
+数据处理
+    ↓
+定位算法
+    ↓
+位置结果</pre>
+
+      <p>其中最耗时的，是“协议解析”这一段：</p>
+      <ul>
+        <li>读文档，找出每个字段的偏移和含义；</li>
+        <li>按字节解析二进制数据；</li>
+        <li>处理各种边界情况和厂商差异。</li>
+      </ul>
+
+      <p>那是一种“从文档到代码”的翻译工作，而且是纯手工。</p>
+
+      <h2 id="sec-2">二、一条链路是怎么推进的</h2>
+
+      <p>如果只挑一个词总结这段推进过程，我会选“链路”。</p>
+
+      <p>它不是某一天的灵光一现，而是一段一段打通的：</p>
+
+      <p><strong>第一步，协议解析。</strong> 没有任何现成代码，只有文档。逐字节读懂接收机输出，把二进制解析成有意义的字段。这是整条链路的入口，入口不对，后面全是错的。</p>
+
+      <p><strong>第二步，信号处理与伪距计算。</strong> 解析出来的原始观测量，要经过处理才能算出伪距。这里开始出现“误差”的概念：信号噪声、多径、钟差，每个都影响最终结果。</p>
+
+      <p><strong>第三步，坐标解算。</strong> 有了伪距，用定位算法解出坐标。这一步让我第一次直面“算法本身不难，难的是前面每一步的可靠性”。</p>
+
+      <p><strong>第四步，参考站差分。</strong> 单点定位误差不够小，就引入参考站差分来校正，把系统性的误差压下去。</p>
+
+      <p>每一步都有输出、都能单独验证。推进的方式永远是：固定输入，跑一段，检查输出是否符合预期，再走下一步。</p>
+
+      <p>这段经历给我最深的影响，是一个认识：</p>
+
+      <blockquote>
+        <p>一个系统真正困难的地方，往往不是某一个算法，而是从原始输入到可靠输出之间完整链路的构建。</p>
+      </blockquote>
+
+      <p>这个认识后来一路跟着我，直到 LLM 工程。</p>
+
+      <h2 id="sec-3">三、现在：LLM 能帮上什么</h2>
+
+      <p>如果今天重做这块工作，LLM 能在几个环节帮上忙。</p>
+
+      <p><strong>1. 协议文档解析</strong></p>
+
+      <p>把 PDF/文档里的字段定义交给 LLM，让它生成解析代码草稿。当年我是逐字节手抄，现在这一步的“翻译成本”被大幅降低了。</p>
+
+      <p><strong>2. 解析逻辑的测试与核对</strong></p>
+
+      <p>让 LLM 根据字段定义生成边界测试用例，辅助人核对解析是否正确——解码头是整条链路的入口，最容易错，也最值得用工具加固。</p>
+
+      <p><strong>3. 可复现评测</strong></p>
+
+      <p>固定数据、固定流程、记录误差，判断每次改动是变好还是变坏。这也是我后来做 LLM 工程时坚持的原则。</p>
+
+      <h2 id="sec-4">四、一个更本质的迁移</h2>
+
+      <p>GNSS 链路和 LLM 应用，在结构上是同一件事：</p>
+
+      <pre class="flow">用户请求 / 原始知识
+    ↓
+处理与理解
+    ↓
+模型推理
+    ↓
+可信结果</pre>
+
+      <p>两者都要回答同一个问题：如何让“不确定的中间过程”产出“可靠的结果”。</p>
+
+      <p>GNSS 里的误差来自信号噪声和模型近似；LLM 里的不确定性来自模型的概率本性。处理方式不同，但思路一致——用工程把不确定性关进边界里。</p>
+
+      <h2 id="sec-5">五、小结</h2>
+
+      <p>我最早在定位里学会的，不是定位算法本身，而是“完整链路”和“结果可靠性”这两个工程意识。它们后来一路跟着我：从空间数据处理、企业软件、直到 LLM 系统工程。</p>
+
+      <p>LLM 不是让这些领域消失，而是让每个领域里“从理解到执行”的那段路变短了。</p>
+
+      <blockquote>
+        <p>让 AI 成为可靠的软件系统能力。</p>
+      </blockquote>
+    </article>
+  </main>
+
+  <button id="top-btn" class="icon-btn" aria-label="返回顶部">↑</button>
+
+  <footer>
+    © 2026 吕绪鑫 · 纯 HTML / CSS / JS 手写 · 由 GitHub Pages 托管
+  </footer>
+
+  <script src="/assets/main.js"></script>
+</body>
+</html>

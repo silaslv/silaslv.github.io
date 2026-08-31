@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="把大模型放进确定性系统：LLM 赋能企业人事系统 — 吕绪鑫">
+  <title>把大模型放进确定性系统：LLM 赋能企业人事系统 · 吕绪鑫</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+</head>
+<body>
+  <div id="progress"></div>
+
+  <nav class="site-nav">
+    <a class="brand" href="/">吕绪鑫</a>
+    <div class="nav-links">
+      <a href="/">首页</a>
+      <a href="/about.html">关于</a>
+      <a href="/posts/" class="active">文章</a>
+      <a href="/projects/">作品集</a>
+      <a href="/certificates/">证书</a>
+      <a href="/resources/">资源</a>
+    </div>
+    <div class="nav-right">
+      <button id="theme-toggle" class="icon-btn" aria-label="切换明暗主题">🌙</button>
+      <a class="icon-btn" href="https://github.com/silaslv" target="_blank" rel="noopener" aria-label="GitHub">🐙</a>
+    </div>
+  </nav>
+
+  <aside class="toc">
+    <div class="toc-title">目录</div>
+    <a href="#sec-1">一、AI 的机会在哪</a>
+    <a href="#sec-2">二、一次真实的探索</a>
+    <a href="#sec-3">三、为什么不能全交给模型</a>
+    <a href="#sec-4">四、还能赋能哪些环节</a>
+    <a href="#sec-5">五、落地的工程约束</a>
+    <a href="#sec-6">六、小结</a>
+  </aside>
+
+  <main class="container">
+    <header class="article-header">
+      <a class="back" href="/posts/">← 返回文章列表</a>
+      <h1>把大模型放进确定性系统：LLM 赋能企业人事系统</h1>
+      <div class="byline">
+        <span class="author">作者：吕绪鑫</span>
+        <span class="sep">·</span>
+        <span>方向：企业级 LLM 应用 / AI 平台工程</span>
+      </div>
+    </header>
+
+    <article class="article-body">
+      <p class="lead">过去几年，我的主要工作是企业人事系统（HCM）：入职、调动、转正、离职、合同签续，还有审批流、权限、电子签。这套系统看起来和 AI 关系不大——它要求的是确定、合规、可审计。</p>
+
+      <p>但恰恰是这种系统，让我想清楚了一件事：大模型该放在哪里。</p>
+
+      <p>这篇文章是“LLM 赋能我接触过的领域”系列的第一篇：从人事系统出发，聊聊我理解的落地方式和边界。</p>
+
+      <h2 id="sec-1">一、人事系统里，AI 的机会在哪</h2>
+
+      <p>如果把人进入/离开一家公司的全流程拆开，几乎每一步都有“理解 + 生成 + 检索”的空间：</p>
+      <ul>
+        <li>候选人筛选（招聘）</li>
+        <li>合同与制度问答（员工自助）</li>
+        <li>流程办理助手（入职/离职导航）</li>
+        <li>材料预审（表单核对、缺失提醒）</li>
+        <li>制度合规检查（事后审计提示）</li>
+      </ul>
+
+      <p>但直接把这些交给大模型会出问题，因为人事系统对“结果”的要求是确定性的：审批不能错、权限不能越、记录不能丢。</p>
+
+      <h2 id="sec-2">二、一次真实的探索：招聘匹配</h2>
+
+      <p>我参与的一版方案是招聘匹配：从岗位描述到候选人推荐。</p>
+
+      <p>当时形成的链路：</p>
+
+      <pre class="flow">岗位描述
+    ↓
+LLM 生成岗位画像
+    ↓
+用户确认
+    ↓
+业务系统执行筛选和评分
+    ↓
+结果保存与审计</pre>
+
+      <p>这里最关键的是分工。</p>
+
+      <p>模型负责：</p>
+      <ul>
+        <li>意图理解</li>
+        <li>信息抽取</li>
+        <li>内容生成</li>
+      </ul>
+
+      <p>业务系统负责：</p>
+      <ul>
+        <li>权限</li>
+        <li>数据</li>
+        <li>规则</li>
+        <li>审计</li>
+      </ul>
+
+      <p>模型只做“把一段自然语言变成结构化画像”，而过滤、评分、落库、留痕这些确定性动作，全部回到业务系统。</p>
+
+      <p>这也是我理解的边界：</p>
+
+      <blockquote>
+        <p>大模型负责理解和生成，业务系统负责确定性执行。</p>
+      </blockquote>
+
+      <h2 id="sec-3">三、为什么不能全交给模型</h2>
+
+      <p>主要有几个原因。</p>
+
+      <p><strong>1. 概率输出不能直接进流程</strong></p>
+
+      <p>模型输出是概率性的，同一段输入换一次采样结果可能不同。而审批、薪资、合同这类动作，要求可复现、可解释。</p>
+
+      <p><strong>2. 结果要能追责</strong></p>
+
+      <p>出了问题要能回答“这一步是谁、按什么规则、在什么时间做的”。纯模型输出没法回答这个问题，除非全程留审计日志。</p>
+
+      <p><strong>3. 幻觉是结构性的</strong></p>
+
+      <p>让模型“不要编”是违背其本性的。只能在边界上做工程约束：硬性条件由规则系统兜底，模型只在“软”的地方给建议。</p>
+
+      <h2 id="sec-4">四、LLM 还能赋能人事系统的哪些环节</h2>
+
+      <p>基于同样的边界，我列了几个我认为可行、且值得做的方向：</p>
+      <ul>
+        <li><strong>制度问答（RAG）</strong>：员工问“年假怎么算”，答案来自制度库、带出处引用，而非模型自由发挥。</li>
+        <li><strong>合同关键条款摘要</strong>：签署前提取金额、期限、违约责任，辅助人工审阅，不替代人工。</li>
+        <li><strong>流程预审</strong>：入职材料是否齐全、表单字段是否矛盾，由模型先检查一遍，规则校验兜底。</li>
+        <li><strong>入职/离职办理助手</strong>：把多步流程变成对话式导航，系统负责每一步的实际执行。</li>
+        <li><strong>异常提示</strong>：事后扫描权限越权、流程异常，生成提示给管理员。</li>
+      </ul>
+
+      <p>每一个的原则都一样：模型出“理解和建议”，系统做“决策和执行”。</p>
+
+      <h2 id="sec-5">五、落地的几个工程约束</h2>
+
+      <p>这几条是从实际踩坑里总结的：</p>
+      <ul>
+        <li><strong>脱敏与数据边界</strong>：员工数据是敏感数据，模型只能接触“该看的部分”。</li>
+        <li><strong>审计日志</strong>：模型的每一次输入输出、每一次动作都要留痕。</li>
+        <li><strong>结果快照</strong>：匹配结果、推荐名单要持久化，能复现当时的判定。</li>
+        <li><strong>可回滚</strong>：模型升级、Prompt 调整都要能回退到旧版本。</li>
+        <li><strong>可复现评测</strong>：没有 benchmark，就无法判断这次改动是变好还是变坏。</li>
+      </ul>
+
+      <h2 id="sec-6">六、小结</h2>
+
+      <p>人事系统教会我的，是“确定性”三个字的分量。</p>
+
+      <p>LLM 的价值在于把“理解与生成”的成本降下来，但真正让一个功能可用、可控、可维护的，永远是工程。</p>
+
+      <blockquote>
+        <p>企业需要的不只是智能，而是可控、可解释、可维护的智能。</p>
+      </blockquote>
+
+      <p>下一篇，我会聊聊另一个我接触过的领域：空间数据处理（GNSS），以及 LLM 能在其中做什么。</p>
+    </article>
+  </main>
+
+  <button id="top-btn" class="icon-btn" aria-label="返回顶部">↑</button>
+
+  <footer>
+    © 2026 吕绪鑫 · 纯 HTML / CSS / JS 手写 · 由 GitHub Pages 托管
+  </footer>
+
+  <script src="/assets/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="从数据可视化到辅助决策：LLM 赋能遥感与选址 — 吕绪鑫">
+  <title>从数据可视化到辅助决策：LLM 赋能遥感与选址 · 吕绪鑫</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+</head>
+<body>
+  <div id="progress"></div>
+
+  <nav class="site-nav">
+    <a class="brand" href="/">吕绪鑫</a>
+    <div class="nav-links">
+      <a href="/">首页</a>
+      <a href="/about.html">关于</a>
+      <a href="/posts/" class="active">文章</a>
+      <a href="/projects/">作品集</a>
+      <a href="/certificates/">证书</a>
+      <a href="/resources/">资源</a>
+    </div>
+    <div class="nav-right">
+      <button id="theme-toggle" class="icon-btn" aria-label="切换明暗主题">🌙</button>
+      <a class="icon-btn" href="https://github.com/silaslv" target="_blank" rel="noopener" aria-label="GitHub">🐙</a>
+    </div>
+  </nav>
+
+  <aside class="toc">
+    <div class="toc-title">目录</div>
+    <a href="#sec-1">一、全球气候与碳数据可视化</a>
+    <a href="#sec-2">二、验潮站选址研究</a>
+    <a href="#sec-3">三、现在：LLM 能帮什么</a>
+    <a href="#sec-4">四、但工程的本质没变</a>
+    <a href="#sec-5">五、小结</a>
+  </aside>
+
+  <main class="container">
+    <header class="article-header">
+      <a class="back" href="/posts/">← 返回文章列表</a>
+      <h1>从数据可视化到辅助决策：LLM 赋能遥感与选址</h1>
+      <div class="byline">
+        <span class="author">作者：吕绪鑫</span>
+        <span class="sep">·</span>
+        <span>方向：企业级 LLM 应用 / AI 平台工程</span>
+      </div>
+    </header>
+
+    <article class="article-body">
+      <p class="lead">这是我“LLM 赋能我接触过的领域”系列的第二篇。第一篇讲了企业人事系统，这一篇聊我做过的遥感与空间数据工作：全球气候与碳数据可视化、验潮站选址研究。</p>
+
+      <h2 id="sec-1">一、全球气候与碳数据可视化</h2>
+
+      <p>第一份工作做卫星导航，早期做遥感和空间数据的可视化，数据主要来自 NASA 等公开数据源：</p>
+      <ul>
+        <li>全球气温分布可视化</li>
+        <li>全球降水分布可视化</li>
+        <li>全球碳相关数据可视化</li>
+      </ul>
+
+      <p>这段经历让我建立了第一套完整的数据处理流程：</p>
+
+      <pre class="flow">数据获取
+    ↓
+数据清洗
+    ↓
+特征分析
+    ↓
+算法处理
+    ↓
+结果验证
+    ↓
+可视化展示</pre>
+
+      <p>现在回头看，这套流程和我后来做 LLM 工程的流程是同一个结构：拿到原始数据，处理，验证，产出可信结果。</p>
+
+      <h2 id="sec-2">二、验潮站选址研究</h2>
+
+      <p>做全球验潮站的空间分布研究时，问题从“数据可视化”进一步变成“帮助决策”：全球那么多候选位置，怎么选？</p>
+
+      <p>我用了聚类方法做空间分布分析，并融合经济、政治等个性化因子一起建模，最后输出可视化 Web 选址页面，直接支撑决策汇报。</p>
+
+      <p>这件事让我第一次体会到：</p>
+
+      <blockquote>
+        <p>算法建模的终点不是数字，而是“能支撑人做决定的可解释结果”。</p>
+      </blockquote>
+
+      <h2 id="sec-3">三、现在：LLM 能帮上什么</h2>
+
+      <p>如果今天重做当年的工作，LLM 可以在几个环节帮上忙。</p>
+
+      <p><strong>1. 自然语言生成数据处理流水线</strong></p>
+
+      <p>用自然语言描述需求：“清洗这列数据、按年份聚合、跑一遍聚类”，LLM 生成可执行代码，人在关键步骤确认。当年每一步都要手写脚本，现在“从需求到代码”的翻译成本被大幅降低。</p>
+
+      <p><strong>2. RAG 知识库</strong></p>
+
+      <p>把算法文档、标准规范、历史踩坑沉淀成知识库，用问答方式查询，且带出处——而不是翻一堆 PDF。</p>
+
+      <p><strong>3. 可视化与报告说明</strong></p>
+
+      <p>把结果翻译成人话：为什么这个选址点被选中、这几个聚类代表了什么、哪片区域的数据质量最好。</p>
+
+      <h2 id="sec-4">四、但工程的本质没变</h2>
+
+      <p>LLM 降低了“从需求到代码”的翻译成本，但没有降低“从代码到可靠结果”的工程成本：</p>
+      <ul>
+        <li>生成的代码要过校验；</li>
+        <li>处理流程要可复现；</li>
+        <li>每个环节要有测试；</li>
+        <li>数据异常要有人兜底。</li>
+      </ul>
+
+      <p>当年做全球数据可视化时养成的习惯——固定数据源、固定流程、记录版本、验证结果——和现在做 LLM 工程时的原则一脉相承：</p>
+
+      <blockquote>
+        <p>没有可复现的 benchmark，就没有可靠的工程决策。</p>
+      </blockquote>
+
+      <h2 id="sec-5">五、小结</h2>
+
+      <p>从气候数据到选址决策，这段经历教会我两件事：一是完整的数据处理链路，二是“结果要能支撑人做决定”。</p>
+
+      <p>LLM 让“从理解到执行”的那段路变短了，但链路和可靠性，永远要靠工程。</p>
+
+      <p>下一篇，我会聊我投入最深的另一块：室内高精度定位，以及那条链路是怎么一步步推进的。</p>
+    </article>
+  </main>
+
+  <button id="top-btn" class="icon-btn" aria-label="返回顶部">↑</button>
+
+  <footer>
+    © 2026 吕绪鑫 · 纯 HTML / CSS / JS 手写 · 由 GitHub Pages 托管
+  </footer>
+
+  <script src="/assets/main.js"></script>
+</body>
+</html>
