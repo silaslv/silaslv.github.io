@@ -24,7 +24,8 @@
 │   └── YYYY-MM-DD-slug.html   # 文章正文
 └── assets/
     ├── style.css              # 明暗主题与响应式样式
-    └── main.js                # 主题切换、进度条、目录与邮箱复制
+    ├── main.js                # 主题切换、进度条、目录与邮箱复制
+    └── evidence/              # 去除 EXIF 后的公开证书与实验记录
 ```
 
 `certificates/` 与 `resources/` 暂时保留为未公开页面，已从导航隐藏并设置 `noindex`。
