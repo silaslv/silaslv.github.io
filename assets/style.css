@@ -141,6 +141,7 @@ button.chip:hover { border-color: var(--accent); }
 .section-grid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 48px;
 }
+.evidence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .entry-card {
   display: block; padding: 22px 24px; border: 1px solid var(--border);
   border-radius: 16px; background: var(--surface); box-shadow: var(--shadow);
@@ -207,7 +208,7 @@ button.chip:hover { border-color: var(--accent); }
   transition: transform 0.18s ease, border-color 0.18s ease;
 }
 .project-card:hover { transform: translateY(-2px); border-color: var(--accent); }
-.project-card .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.project-card .head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
 .project-card h3 { margin: 0; font-size: 17px; color: var(--text); }
 .project-card p { margin: 0 0 12px; color: var(--text-soft); font-size: 15px; }
 .project-card .tags { margin-bottom: 14px; }
@@ -217,6 +218,9 @@ button.chip:hover { border-color: var(--accent); }
 }
 .status.soon { color: var(--accent); border-color: var(--accent); }
 .status.private { color: var(--text-faint); border-color: var(--border); }
+.status.live { color: #2e7d32; border-color: #2e7d32; }
+.status.work { color: var(--accent-2); border-color: var(--accent-2); }
+.status.progress { color: #b26a00; border-color: #b26a00; }
 .btn {
   display: inline-block; padding: 7px 16px; border-radius: 10px;
   border: 1px solid var(--accent); color: var(--accent); font-size: 14px;
@@ -224,6 +228,10 @@ button.chip:hover { border-color: var(--accent); }
 }
 .btn:hover { background: var(--accent); color: #fff; opacity: 1; }
 .btn.disabled { border-color: var(--border); color: var(--text-faint); pointer-events: none; }
+.btn.secondary { border-color: var(--border); color: var(--text-soft); }
+.btn.secondary:hover { border-color: var(--accent); background: var(--accent); color: #fff; }
+.project-links { display: flex; flex-wrap: wrap; gap: 10px; }
+.project-card { scroll-margin-top: 24px; }
 
 /* ---------- 资源 ---------- */
 .resource-group { margin-bottom: 34px; }

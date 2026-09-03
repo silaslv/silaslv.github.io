@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="关于吕绪鑫 — 企业级 AI 应用 / AI 平台工程师">
+  <meta name="description" content="关于吕绪鑫 — Python 后端开发与 AI 应用工程师">
   <title>关于 · 吕绪鑫</title>
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
@@ -15,11 +15,9 @@
     <a class="brand" href="/">吕绪鑫</a>
     <div class="nav-links">
       <a href="/">首页</a>
-      <a href="/about.html" class="active">关于</a>
+      <a href="/projects/">项目</a>
       <a href="/posts/">文章</a>
-      <a href="/projects/">作品集</a>
-      <a href="/certificates/">证书</a>
-      <a href="/resources/">资源</a>
+      <a href="/about.html" class="active">关于</a>
     </div>
     <div class="nav-right">
       <button id="theme-toggle" class="icon-btn" aria-label="切换明暗主题">🌙</button>
@@ -30,31 +28,32 @@
   <main class="container">
     <header class="page-header">
       <h1>关于我</h1>
-      <p class="sub">一条从科学计算走到 LLM 系统工程的能力链。</p>
+      <p class="sub">以企业 Python 后端为主线，持续拓展可靠的 AI 应用工程能力。</p>
     </header>
 
     <section class="about-section">
-      <h2>简介</h2>
+      <h2>职业定位</h2>
       <p>
-        本科毕业于哈尔滨工业大学（威海）数学与应用数学专业，辅修工商管理。从科学数据处理入行，转向企业级 SaaS 后端研发，近两年专注 LLM 系统工程——本地推理、Agent、RAG、私有化部署。
+        我有 5 年以上技术工作经验，其中 3 年以上从事企业级 Python 后端研发。当前主要方向是<strong>Python 后端开发与企业 AI 应用工程</strong>，擅长把复杂业务规则、权限边界和外部系统能力落实为可维护、可验证的服务。
       </p>
       <p>
-        我的定位是<strong>企业级 AI 应用 / AI 平台工程师</strong>：不追求论文式的算法创新，而是把大模型可靠地、可控地、可交付地接进企业系统——从"能调用"做到"能用、可控、可审计"。
+        2025 年起，我参与企业 AI 助手、人员智能检索和岗位候选人匹配相关开发；个人工程实践覆盖本地模型推理、Agent Tool Calling、安全策略与知识检索。这里的 AI 经历强调实际系统集成，不把方案思考包装成生产交付。
       </p>
     </section>
 
     <section class="about-section">
       <h2>技术栈</h2>
       <div class="tags">
-        <span class="tag">Python</span>
-        <span class="tag">Tornado / Celery / Redis</span>
-        <span class="tag">SQLAlchemy</span>
-        <span class="tag">llama.cpp + ROCm</span>
-        <span class="tag">RAG / Agent / Tool Calling</span>
-        <span class="tag">Linux / Arch / KDE</span>
-        <span class="tag">Git / CI</span>
-        <span class="tag">Docker</span>
-        <span class="tag">Shell</span>
+        <span class="tag">Python / Tornado</span>
+        <span class="tag">SQLAlchemy / MySQL</span>
+        <span class="tag">Redis / Elasticsearch</span>
+        <span class="tag">REST API / WebSocket</span>
+        <span class="tag">多租户 SaaS / 工作流 / 权限</span>
+        <span class="tag">LLM / Agent / RAG / Tool Calling</span>
+        <span class="tag">llama.cpp / AMD ROCm / GGUF</span>
+        <span class="tag">AngularJS / Angular</span>
+        <span class="tag">Vue 3 / TypeScript</span>
+        <span class="tag">Linux / Docker / Git / 单元测试</span>
       </div>
     </section>
 
@@ -62,36 +61,47 @@
       <h2>经历</h2>
       <div class="timeline">
         <div class="timeline-item">
-          <div class="period">本科 · 哈尔滨工业大学（威海）</div>
-          <h3>数学与应用数学</h3>
-          <p>数学分析、高等代数、数值分析；辅修工商管理；毕设方向为高维数据特征提取。</p>
+          <div class="period">2016.09 - 2020.06 · 哈尔滨工业大学（威海）</div>
+          <h3>数学本科（双学位：工商管理）</h3>
+          <p>毕业设计为高维数据降维，涉及主成分分析与因子分析；获得全国大学生数学竞赛省级一等奖，并开展金融时间序列与量化投资课程实践。</p>
         </div>
         <div class="timeline-item">
-          <div class="period">威海五洲卫星导航科技有限公司</div>
-          <h3>遥感 / 空间数据 → GNSS 导航</h3>
-          <p>NASA 气候与碳数据可视化、验潮站空间分布研究；自学 Python，打通 GNSS「原始数据 → 数据解析 → 信号处理 → 伪距计算 → 差分定位」完整链路。</p>
+          <div class="period">2020.06 - 2022.06 · 威海五洲卫星导航科技有限公司</div>
+          <h3>数据分析与 GNSS 定位研究</h3>
+          <p><strong>数据分析方向：</strong>处理 NASA 遥感、全球地面监测站与碳卫星数据，完成气候、全球碳分布和验潮站选址等分析与可视化。</p>
+          <p><strong>GNSS 方向：</strong>基于伪卫星模拟 GNSS 信号，完成手写信号解码、伪距与坐标计算，并实现使用基准站观测数据的差分定位算法。</p>
         </div>
         <div class="timeline-item">
-          <div class="period">浪潮 HCM Cloud 项目团队</div>
+          <div class="period">2022.07 - 2023.01 · 济南</div>
+          <h3>计算机基础与职业转型准备</h3>
+          <p>系统学习计算机组成原理、操作系统等基础课程，补齐软件工程方向的计算机基础并准备进入企业软件研发岗位。</p>
+        </div>
+        <div class="timeline-item">
+          <div class="period">2023.02 - 至今 · 浪潮数字企业 HCM 事业部</div>
           <h3>企业级 SaaS 后端研发</h3>
-          <p>Python/Tornado、Celery、Redis、SQLAlchemy；流程、权限、电子签等核心模块；央国企客户生产环境；参与企业 AI 助手探索。</p>
+          <p>参与 HCM Cloud 员工全生命周期、业务流程、组织级数据权限与批量导入等能力建设；负责多版本电子签集成、协议差异处理和生产问题定位，并参与 Angular、Vue 相关前后端联调。</p>
         </div>
         <div class="timeline-item">
-          <div class="period">近年</div>
-          <h3>LLM 系统工程</h3>
-          <p>llama.cpp + AMD ROCm 本地推理、量化与 MoE 调度、投机解码验证；本地 LLM 助手（Agent + 工具调用 + 安全边界）、语音控制、RAG 知识库工程化。</p>
+          <div class="period">2025 - 至今 · 企业项目与个人工程实践</div>
+          <h3>AI 应用工程</h3>
+          <p>参与企业 AI 助手、人员智能检索和岗位候选人匹配；个人项目覆盖 llama.cpp + AMD ROCm 本地推理、Agent 工具调用、安全确认与审计机制。</p>
         </div>
       </div>
     </section>
 
     <section class="about-section">
+      <h2>工程关注</h2>
+      <p>我更关注复杂系统的可靠边界：让模型负责理解、抽取和生成，让后端系统负责权限、规则、状态、执行与审计。</p>
+    </section>
+
+    <section class="about-section">
       <h2>联系</h2>
-      <p>个人邮箱：<a href="mailto:silaslv@outlook.com">silaslv@outlook.com</a>　·　工作邮箱：<a href="mailto:lyuxuxin@163.com">lyuxuxin@163.com</a>　·　GitHub：<a href="https://github.com/silaslv" target="_blank" rel="noopener">@silaslv</a></p>
+      <p>邮箱：<a href="mailto:lyuxuxin@163.com">lyuxuxin@163.com</a>　·　GitHub：<a href="https://github.com/silaslv" target="_blank" rel="noopener">@silaslv</a></p>
     </section>
   </main>
 
   <footer>
-    © 2026 吕绪鑫 · 纯 HTML / CSS / JS 手写 · 由 GitHub Pages 托管
+    © 2026 吕绪鑫 · Python 后端与 AI 应用工程实践 · GitHub Pages
   </footer>
 
   <script src="/assets/main.js"></script>

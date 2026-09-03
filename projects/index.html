@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="吕绪鑫的项目 — LLM 助手 / AI 视频流水线 / 语音控制 / 知识库">
+  <meta name="description" content="吕绪鑫的项目 — 企业级 HCM SaaS、本地 LLM 助手与量化研究实践">
   <title>项目 · 吕绪鑫</title>
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
@@ -15,11 +15,9 @@
     <a class="brand" href="/">吕绪鑫</a>
     <div class="nav-links">
       <a href="/">首页</a>
-      <a href="/about.html">关于</a>
+      <a href="/projects/" class="active">项目</a>
       <a href="/posts/">文章</a>
-      <a href="/projects/" class="active">作品集</a>
-      <a href="/certificates/">证书</a>
-      <a href="/resources/">资源</a>
+      <a href="/about.html">关于</a>
     </div>
     <div class="nav-right">
       <button id="theme-toggle" class="icon-btn" aria-label="切换明暗主题">🌙</button>
@@ -29,64 +27,79 @@
 
   <main class="container">
     <header class="page-header">
-      <h1>作品集</h1>
-      <p class="sub">做过的项目与工程实践，含截图、Demo 与代码链接。</p>
+      <h1>项目与工程实践</h1>
+      <p class="sub">优先呈现可验证的公开项目；商业项目仅描述本人职责和脱敏后的工程范围。</p>
     </header>
 
     <section style="padding: 16px 0 32px;">
-      <div class="project-card animate">
-        <div class="thumb">项目截图（可选）</div>
+      <div class="project-card animate" id="hcm">
         <div class="head">
-          <h3>本地 LLM 桌面助手</h3>
-          <span class="status soon">整理中 · 即将公开</span>
+          <h3>HCM Cloud 企业级 SaaS 后端</h3>
+          <span class="status work">职业项目 · 2023.02 - 至今</span>
         </div>
-        <p>llama.cpp + ROCm 本地推理；Agent 循环 + 工具调用；PyQt6 气泡窗口 / CLI / Web / KDE Plasmoid 多入口；CommandValidator 安全拦截 + 审计日志 + 43 个单元测试。</p>
+        <p>参与入职、调动、转正、离职、合同签续、晋升、轮岗和退休变动等员工全生命周期模块，承担复杂业务规则、数据流转、后端接口与审批节点开发；落地组织级数据权限、批量导入、差异识别及前后端联调。</p>
+        <p>负责电子签 10 个部署版本的接入与维护，覆盖多个厂商；独立完成其中一个厂商从 0 到 1 的接入，在一周内打通签名验证、印章处理、证书回传、回调和签署流程。商业代码与客户信息不公开。</p>
         <div class="tags">
-          <span class="tag">Python</span><span class="tag">llama.cpp</span><span class="tag">Agent</span><span class="tag">PyQt6</span><span class="tag">DBus</span>
+          <span class="tag">Python</span><span class="tag">Tornado</span><span class="tag">SQLAlchemy</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">WebSocket</span><span class="tag">Angular / Vue</span>
         </div>
-        <a class="btn disabled">代码整理后公开</a>
       </div>
 
-      <div class="project-card animate delay-1">
+      <div class="project-card animate delay-1" id="enterprise-ai">
         <div class="head">
-          <h3>AI 数学视频生产流水线</h3>
-          <span class="status soon">整理中 · 即将公开</span>
+          <h3>企业 AI 助手与智能匹配</h3>
+          <span class="status work">职业项目 · 2025 - 至今</span>
         </div>
-        <p>单人在 7GB 消费级 GPU 上跑通「题目 → LLM 解题 → ChatTTS 配音 → PIL 渲染 → ffmpeg 合成」；GPU 串行复用 + 多级缓存 + 规则驱动 + 单元测试。</p>
+        <p>参与企业 AI 助手、人员智能检索和 AI 工作流开发，处理业务流程接入、高级检索、条件解析、人员及业务卡片数据权限、工具描述与调用审计。</p>
+        <p>独立实现一版岗位与候选人智能匹配验证方案，并参与正式方案联调；覆盖岗位画像确认、Elasticsearch 硬条件过滤、12 维评分、结果预览、详细报告和多人对比，明确“模型负责理解，后端负责确定性执行”的边界。</p>
         <div class="tags">
-          <span class="tag">llama.cpp</span><span class="tag">ChatTTS</span><span class="tag">ffmpeg</span><span class="tag">Pipeline</span>
+          <span class="tag">LLM</span><span class="tag">Tool Calling</span><span class="tag">Elasticsearch</span><span class="tag">Data Permission</span><span class="tag">Workflow</span>
         </div>
-        <a class="btn disabled">代码整理后公开</a>
       </div>
 
-      <div class="project-card animate delay-2">
+      <div class="project-card animate delay-2" id="llm-assistant">
         <div class="head">
-          <h3>全离线语音控制</h3>
-          <span class="status soon">整理中 · 即将公开</span>
+          <h3>llm-assistant · 本地 LLM 桌面助手</h3>
+          <span class="status live">公开项目</span>
         </div>
-        <p>Vosk 中文 ASR + wespeaker 声纹门 + llama.cpp 意图理解 + sherpa-onnx TTS，全程本地无云端，语音控制音量/亮度/对话。</p>
+        <p>基于 llama.cpp 与 AMD ROCm 的本地助手，抽取共享 <code>llm_core</code>，通过 OpenAI 兼容 HTTP/SSE、Unix Socket 与 D-Bus 支撑 PyQt6、CLI 和 KDE Plasma 接入。</p>
+        <p>实现 Agent 多轮 Tool Calling、危险命令拦截、敏感路径保护、显式确认和 JSONL 审计日志；当前公开仓库覆盖 65 个单元测试并由 GitHub Actions 持续验证。</p>
         <div class="tags">
-          <span class="tag">Vosk</span><span class="tag">sherpa-onnx</span><span class="tag">ASR/TTS</span>
+          <span class="tag">Python</span><span class="tag">llama.cpp</span><span class="tag">Agent</span><span class="tag">PyQt6</span><span class="tag">D-Bus</span><span class="tag">Security</span><span class="tag">CI</span>
         </div>
-        <a class="btn disabled">代码整理后公开</a>
+        <div class="project-links">
+          <a class="btn" href="https://github.com/silaslv/llm-assistant" target="_blank" rel="noopener">查看代码</a>
+          <a class="btn secondary" href="https://github.com/silaslv/llm-assistant/actions" target="_blank" rel="noopener">查看测试</a>
+        </div>
       </div>
 
-      <div class="project-card animate delay-3">
+      <div class="project-card animate delay-3" id="quant-lab">
         <div class="head">
-          <h3>个人知识库工程化</h3>
-          <span class="status private">私有</span>
+          <h3>Quant Research Lab</h3>
+          <span class="status progress">In Progress · 2026.09</span>
         </div>
-        <p>Obsidian + RAG + Karpathy「LLM wiki」模式；raw 证据层 + 编译层 + 14 项一致性校验脚本；约 190 条目、git 版本化。</p>
+        <p>重建本科阶段基于真实期货历史数据的多变量时间序列研究，计划覆盖数据清洗、收益率与平稳性检验、格兰杰因果关系、协整关系和对冲策略评估。</p>
+        <p>当前正在核验原始数据来源与具体合约口径；完成后将以可复现研究仓库的形式公开，不在证据确认前填写具体期货品种或收益结论。</p>
         <div class="tags">
-          <span class="tag">Obsidian</span><span class="tag">RAG</span><span class="tag">Knowledge Engineering</span>
+          <span class="tag">Python</span><span class="tag">Time Series</span><span class="tag">Granger Causality</span><span class="tag">Cointegration</span><span class="tag">Hedging</span>
         </div>
-        <a class="btn" href="https://github.com/silaslv" target="_blank" rel="noopener">GitHub 主页</a>
+      </div>
+
+      <div class="project-card animate" id="scientific-data">
+        <div class="head">
+          <h3>科学数据分析与 GNSS 定位</h3>
+          <span class="status work">早期职业实践 · 2020.06 - 2022.06</span>
+        </div>
+        <p><strong>科学数据方向：</strong>处理 NASA 遥感、全球地面监测站和碳卫星数据，开展全球气候与碳分布可视化、验潮站选址等空间数据分析。</p>
+        <p><strong>GNSS 方向：</strong>基于伪卫星模拟信号，完成手写信号解码、伪距和坐标计算，并实现使用基准站观测数据的差分定位算法。这是两个独立方向，而非同一项目。</p>
+        <div class="tags">
+          <span class="tag">Python</span><span class="tag">MATLAB</span><span class="tag">Spatial Data</span><span class="tag">Clustering</span><span class="tag">GNSS</span><span class="tag">Differential Positioning</span>
+        </div>
       </div>
     </section>
   </main>
 
   <footer>
-    © 2026 吕绪鑫 · 纯 HTML / CSS / JS 手写 · 由 GitHub Pages 托管
+    © 2026 吕绪鑫 · Python 后端与 AI 应用工程实践 · GitHub Pages
   </footer>
 
   <script src="/assets/main.js"></script>

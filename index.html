@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="吕绪鑫的个人网站 — 企业级 AI 应用 / AI 平台工程 / 私有化部署">
-  <title>吕绪鑫 · 个人网站</title>
+  <meta name="description" content="吕绪鑫的个人网站 — Python 后端开发、企业级 SaaS 与 AI 应用工程实践">
+  <title>吕绪鑫 · Python 后端 / AI 应用工程师</title>
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
 </head>
@@ -15,11 +15,9 @@
     <a class="brand" href="/">吕绪鑫</a>
     <div class="nav-links">
       <a href="/" class="active">首页</a>
-      <a href="/about.html">关于</a>
+      <a href="/projects/">项目</a>
       <a href="/posts/">文章</a>
-      <a href="/projects/">作品集</a>
-      <a href="/certificates/">证书</a>
-      <a href="/resources/">资源</a>
+      <a href="/about.html">关于</a>
     </div>
     <div class="nav-right">
       <button id="theme-toggle" class="icon-btn" aria-label="切换明暗主题">🌙</button>
@@ -31,66 +29,66 @@
     <section class="hero">
       <div class="avatar animate">吕</div>
       <h1 class="animate delay-1">你好，我是<span class="grad"> 吕绪鑫</span></h1>
-      <p class="tagline animate delay-2">企业级 AI 应用 · AI 平台工程 · 私有化部署</p>
+      <p class="tagline animate delay-2">Python 后端开发工程师 · AI 应用工程师</p>
       <p class="bio animate delay-2">
-        从科学计算走到 LLM 系统工程。做过卫星导航数据处理、企业级 SaaS 后端，现在专注把大模型可靠地、可控地接进企业系统。这是我的个人主页——文章、资源、项目都汇总在这里。
+        5 年以上技术工作经验，其中 3 年以上企业级 Python 后端研发经验。长期参与 HCM Cloud 多租户 SaaS 建设，覆盖复杂业务流程、组织权限、电子签与生产问题定位；2025 年起参与企业 AI 助手、智能检索和岗位候选人匹配，并持续开展本地 LLM 工程实践。
       </p>
       <div class="contacts animate delay-3">
-        <button class="chip copy-email" data-email="silaslv@outlook.com" title="个人邮箱 · 点击复制">
-          <span class="dot">✉</span><span class="email-text">silaslv@outlook.com</span>
-        </button>
-        <button id="copy-email" class="chip copy-email" data-email="lyuxuxin@163.com" title="工作邮箱 · 点击复制">
+        <button id="copy-email" class="chip copy-email" data-email="lyuxuxin@163.com" title="求职邮箱 · 点击复制">
           <span class="dot">✉</span><span class="email-text">lyuxuxin@163.com</span>
         </button>
         <a class="chip" href="https://github.com/silaslv" target="_blank" rel="noopener">
           <span class="dot">🐙</span> GitHub
         </a>
+        <a class="chip" href="https://github.com/silaslv/llm-assistant" target="_blank" rel="noopener">
+          <span class="dot">↗</span> llm-assistant
+        </a>
       </div>
     </section>
 
     <section>
-      <p class="section-title">栏目</p>
-      <div class="section-grid animate">
+      <p class="section-title">代表性实践</p>
+      <div class="section-grid evidence-grid animate">
+        <a class="entry-card" href="/projects/#hcm">
+          <div class="ico">🏢</div>
+          <h3>企业级 HCM SaaS</h3>
+          <p>业务流程、组织级权限、电子签、多厂商适配与生产问题定位</p>
+        </a>
+        <a class="entry-card" href="/projects/#llm-assistant">
+          <div class="ico">🤖</div>
+          <h3>本地 LLM 桌面助手</h3>
+          <p>共享核心、Tool Calling、安全策略、审计日志与 65 个单元测试</p>
+        </a>
+        <a class="entry-card" href="/projects/#quant-lab">
+          <div class="ico">📈</div>
+          <h3>Quant Research Lab</h3>
+          <p>多期货时间序列、格兰杰因果、协整与对冲研究，2026.09 重建中</p>
+        </a>
         <a class="entry-card" href="/about.html">
-          <div class="ico">👤</div>
-          <h3>关于我</h3>
-          <p>经历、技能与方向</p>
-        </a>
-        <a class="entry-card" href="/posts/">
-          <div class="ico">✍️</div>
-          <h3>文章</h3>
-          <p>技术成长与工程实践</p>
-        </a>
-        <a class="entry-card" href="/projects/">
-          <div class="ico">🛠️</div>
-          <h3>作品集</h3>
-          <p>项目与工程实践</p>
-        </a>
-        <a class="entry-card" href="/certificates/">
-          <div class="ico">🏆</div>
-          <h3>证书</h3>
-          <p>获奖与资质证明</p>
-        </a>
-        <a class="entry-card" href="/resources/">
-          <div class="ico">📦</div>
-          <h3>资源</h3>
-          <p>PPT · 视频 · 音频 · 文档下载</p>
+          <div class="ico">🧭</div>
+          <h3>技术经历</h3>
+          <p>数学与数据分析 → 遥感/GNSS → 企业后端 → AI 应用</p>
         </a>
       </div>
     </section>
 
     <section>
-      <p class="section-title">最新文章</p>
-      <a class="post-card animate" href="/posts/2026-08-25-from-math-to-llm-engineering.html">
-        <div class="date">2026-08-25</div>
-        <h2>从科学计算到 LLM 系统工程：一个工程师的技术演进路径</h2>
-        <p>一次技术路径梳理：科学计算 → 企业软件 → LLM 系统工程。</p>
+      <p class="section-title">工程复盘</p>
+      <a class="post-card animate" href="/posts/2026-08-31-llm-empower-hr-system.html">
+        <div class="date">企业 AI 落地思考 · 2026-08-31</div>
+        <h2>确定性 HCM 系统中的模型边界</h2>
+        <p>从招聘匹配出发，讨论模型理解能力与业务系统确定性执行之间的分工。</p>
+      </a>
+      <a class="post-card animate delay-1" href="/posts/2026-08-25-from-math-to-llm-engineering.html">
+        <div class="date">职业技术路径复盘 · 2026-08-25</div>
+        <h2>从科学计算到企业后端与 LLM 应用工程</h2>
+        <p>回顾数学、科学数据处理、企业软件和本地 LLM 工程之间的能力迁移。</p>
       </a>
     </section>
   </main>
 
   <footer>
-    © 2026 吕绪鑫 · 纯 HTML / CSS / JS 手写 · 由 GitHub Pages 托管
+    © 2026 吕绪鑫 · Python 后端与 AI 应用工程实践 · GitHub Pages
   </footer>
 
   <script src="/assets/main.js"></script>
