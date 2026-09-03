@@ -55,16 +55,15 @@
 
       <p>室外卫星信号进入建筑物后容易衰减和受多径影响。伪卫星站在室内发射与 GNSS 接收链路相适配的信号，使接收机可以继续获得测距观测。实验环境不是单个发射端与单个接收端，而是同时布设多个伪卫星站，并使用多台接收机采集和比对数据。</p>
 
-      <div class="article-figure-grid">
-        <figure class="article-figure">
-          <img src="/assets/evidence/gnss-multi-station-experiment.jpg" width="1200" height="844" alt="室内多伪卫星站实验布设">
-          <figcaption>室内多伪卫星站实验布设。公开图片已裁去电脑屏幕信息。</figcaption>
-        </figure>
-        <figure class="article-figure">
-          <img src="/assets/evidence/gnss-receivers-and-antennas.jpg" width="900" height="1200" alt="实验中的多接收机和天线设备">
-          <figcaption>多接收机与天线设备，用于采集和比对观测数据。</figcaption>
-        </figure>
-      </div>
+      <figure class="article-figure article-figure-centered">
+        <img src="/assets/evidence/gnss-multi-station-experiment.jpg" width="1200" height="844" alt="室内多伪卫星站实验布设">
+        <figcaption>室内多伪卫星站实验布设。公开图片已裁去电脑屏幕信息。</figcaption>
+      </figure>
+
+      <figure class="article-figure article-figure-centered article-figure-narrow">
+        <img src="/assets/evidence/gnss-receivers-and-antennas.jpg" width="900" height="1200" alt="实验中的多接收机和天线设备">
+        <figcaption>多接收机与天线设备，用于采集和比对观测数据。</figcaption>
+      </figure>
 
       <p>从软件角度看，目标不是直接把串口数据交给一个“定位函数”，而是构建一条能逐段检查的数据链路：</p>
 
@@ -147,7 +146,7 @@ while has_complete_frame(buffer):
 
       <p>如果这些条件没有显式检查，“完成差分”并不意味着误差一定下降，错配反而会引入新的偏差。</p>
 
-      <figure class="article-figure">
+      <figure class="article-figure article-figure-centered article-figure-narrow">
         <img src="/assets/evidence/gnss-ceiling-pseudolite.jpg" width="900" height="1200" alt="安装在室内吊顶的伪卫星站节点">
         <figcaption>安装在室内吊顶的伪卫星站节点。站点空间分布会直接影响解算几何条件。</figcaption>
       </figure>
