@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="复盘多接收机、多伪卫星站室内 GNSS 实验，从原始观测解析、伪距模型到基准站差分定位与分阶段验证。">
+  <title>多接收机与多伪卫星站的差分定位实验复盘 · 吕绪鑫</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+</head>
+<body>
+  <div id="progress"></div>
+
+  <nav class="site-nav">
+    <a class="brand" href="/">吕绪鑫</a>
+    <div class="nav-links">
+      <a href="/">首页</a>
+      <a href="/projects/">项目</a>
+      <a href="/posts/" class="active">文章</a>
+      <a href="/about.html">关于</a>
+    </div>
+    <div class="nav-right">
+      <button id="theme-toggle" class="icon-btn" aria-label="切换明暗主题">🌙</button>
+      <a class="icon-btn" href="https://github.com/silaslv" target="_blank" rel="noopener" aria-label="GitHub">🐙</a>
+    </div>
+  </nav>
+
+  <aside class="toc">
+    <div class="toc-title">目录</div>
+    <a href="#sec-1">一、实验要解决什么</a>
+    <a href="#sec-2">二、从报文到观测量</a>
+    <a href="#sec-3">三、伪距与位置解算</a>
+    <a href="#sec-4">四、基准站差分</a>
+    <a href="#sec-5">五、验证与误差来源</a>
+    <a href="#sec-6">六、证据边界与收获</a>
+  </aside>
+
+  <main class="container">
+    <header class="article-header">
+      <a class="back" href="/posts/">← 返回文章列表</a>
+      <h1>多接收机与多伪卫星站的差分定位实验复盘</h1>
+      <div class="byline">
+        <span class="author">作者：吕绪鑫</span>
+        <span class="sep">·</span>
+        <span>定位与数据工程实践 · 2026-09-04</span>
+      </div>
+    </header>
+
+    <article class="article-body">
+      <p class="lead">2020.06—2022.06，我做过两个并行方向：一类是遥感与空间数据分析，另一类是 GNSS 室内定位研究。本文只展开后者，复盘多接收机、多伪卫星站实验环境中的原始数据解析、伪距计算、坐标解算和基准站差分思路。</p>
+
+      <div class="article-note">这是一篇基于任职期间代码记忆、工作梳理和现场照片写成的技术复盘。原始仓库、设备协议与完整实验数据目前没有公开，因此只讲可确认的方法链路，不填写无法核验的设备型号、站点数量或定位精度。</div>
+
+      <h2 id="sec-1">一、实验要解决什么</h2>
+
+      <p>室外卫星信号进入建筑物后容易衰减和受多径影响。伪卫星站在室内发射与 GNSS 接收链路相适配的信号，使接收机可以继续获得测距观测。实验环境不是单个发射端与单个接收端，而是同时布设多个伪卫星站，并使用多台接收机采集和比对数据。</p>
+
+      <div class="article-figure-grid">
+        <figure class="article-figure">
+          <img src="/assets/evidence/gnss-multi-station-experiment.jpg" width="1200" height="844" alt="室内多伪卫星站实验布设">
+          <figcaption>室内多伪卫星站实验布设。公开图片已裁去电脑屏幕信息。</figcaption>
+        </figure>
+        <figure class="article-figure">
+          <img src="/assets/evidence/gnss-receivers-and-antennas.jpg" width="900" height="1200" alt="实验中的多接收机和天线设备">
+          <figcaption>多接收机与天线设备，用于采集和比对观测数据。</figcaption>
+        </figure>
+      </div>
+
+      <p>从软件角度看，目标不是直接把串口数据交给一个“定位函数”，而是构建一条能逐段检查的数据链路：</p>
+
+      <pre class="flow">接收机原始数据
+      ↓
+协议识别与报文解析
+      ↓
+时间、站点、观测量对齐
+      ↓
+伪距及坐标计算
+      ↓
+基准站残差 / 差分改正
+      ↓
+其他接收机位置解算与结果验证</pre>
+
+      <h2 id="sec-2">二、从字节流到可计算的观测量</h2>
+
+      <p>最费时间的部分往往在算法之前。接收机输出是连续字节流，软件需要找到帧头、读取长度、校验完整性、识别消息类型，再按厂商协议解释字段。不同设备的字段顺序、单位、时间基准和无效值表达都可能不同。</p>
+
+      <p>一个可靠解析器至少要处理这些情况：</p>
+      <ul>
+        <li>一次读取只有半帧，必须缓存后等待下一批字节。</li>
+        <li>缓冲区混入噪声，需要重新搜索帧边界而不是整体丢弃。</li>
+        <li>校验失败只影响当前帧，不能破坏后续同步。</li>
+        <li>不同消息的时间戳需要映射到统一历元。</li>
+        <li>站点编号、坐标与观测量之间必须建立稳定关联。</li>
+      </ul>
+
+      <pre class="code-block"><code># 解析循环的结构示意，不对应某一厂商协议
+buffer += serial_read()
+while has_complete_frame(buffer):
+    frame, buffer = split_one_frame(buffer)
+    if not checksum_ok(frame):
+        continue
+
+    message = decode_by_type(frame)
+    observations.add(normalize_time_and_units(message))</code></pre>
+
+      <p>我当时采用“固定输入 + 分阶段输出”的办法验证：保留一段原始报文，分别核对拆帧结果、字段值、单位转换和历元对齐。这样坐标异常时可以回到最早发生偏差的阶段，而不是只在最终结果上猜原因。</p>
+
+      <h2 id="sec-3">三、从伪距模型到坐标解算</h2>
+
+      <p>忽略具体设备实现后，一条观测的通用伪距模型可以写成：</p>
+
+      <pre class="flow">ρᵢ = ‖x − sᵢ‖ + c(δtᵣ − δtᵢ) + εᵢ</pre>
+
+      <p>其中 <code>ρᵢ</code> 是接收机对第 i 个信号源的伪距观测，<code>x</code> 是待求接收机坐标，<code>sᵢ</code> 是信号源坐标，<code>c</code> 为光速，<code>δtᵣ</code> 与 <code>δtᵢ</code> 分别代表接收端和发射端钟差，<code>εᵢ</code> 汇总多径、噪声及其他未建模误差。</p>
+
+      <p>多站观测把几何关系联立起来。由于距离方程是非线性的，常见做法是在初值附近线性化，通过迭代最小二乘更新坐标与钟差状态，直到增量或残差满足停止条件。这里有两个容易被代码掩盖的问题：</p>
+      <ul>
+        <li><strong>坐标系与单位一致性：</strong>站点坐标、初值和输出必须处在同一坐标框架。</li>
+        <li><strong>几何条件：</strong>信号源分布过于集中时，即使观测很多，解也可能不稳定。</li>
+      </ul>
+
+      <p>我先在 MATLAB 中验证矩阵计算和迭代过程，再用 Python 重写数据处理链路。这种顺序让算法验证与工程解析分离：前者便于快速试验，后者便于把协议、批处理和结果检查串起来。</p>
+
+      <h2 id="sec-4">四、基准站差分不是简单相减</h2>
+
+      <p>差分定位利用空间上相近接收机面对的部分共同误差。基准站坐标已知，因此可以由站点坐标计算几何距离，再把它与实际伪距观测比较，得到包含公共误差的残差信息。对基准站钟差等公共项进行估计或消除后，按历元和信号源生成改正量，供其他接收机的同步观测使用。</p>
+
+      <pre class="flow">已知基准站坐标 + 伪卫星站坐标
+                 ↓
+            计算理论几何距离
+                 ↓
+基准站实际观测 − 理论模型 → 估计公共误差
+                 ↓
+       按历元、站点匹配差分改正
+                 ↓
+          修正其他接收机观测
+                 ↓
+              重新解算位置</pre>
+
+      <p>这里的关键不是“相减”两个字，而是匹配：</p>
+      <ul>
+        <li>基准站和其他接收机的观测是否属于足够接近的时间历元。</li>
+        <li>改正量是否对应同一个伪卫星站，站点标识是否稳定。</li>
+        <li>两类接收机是否使用一致的单位、坐标与钟差处理方式。</li>
+        <li>某个站点缺测时，是丢弃当前历元、降维解算，还是等待数据补齐。</li>
+      </ul>
+
+      <p>如果这些条件没有显式检查，“完成差分”并不意味着误差一定下降，错配反而会引入新的偏差。</p>
+
+      <figure class="article-figure">
+        <img src="/assets/evidence/gnss-ceiling-pseudolite.jpg" width="900" height="1200" alt="安装在室内吊顶的伪卫星站节点">
+        <figcaption>安装在室内吊顶的伪卫星站节点。站点空间分布会直接影响解算几何条件。</figcaption>
+      </figure>
+
+      <h2 id="sec-5">五、怎样验证一条没有现成答案的链路</h2>
+
+      <p>这类系统很难靠一个最终坐标判断所有环节。更稳妥的方法是逐层建立不变量和对照：</p>
+      <ol>
+        <li><strong>协议层：</strong>同一原始帧反复解析，字段和校验结果保持一致。</li>
+        <li><strong>观测层：</strong>时间连续、站点编号可追踪，异常跳变能被标记。</li>
+        <li><strong>几何层：</strong>用已知坐标回代，检查理论距离和残差量级是否合理。</li>
+        <li><strong>算法层：</strong>比较差分前后残差分布，而不是只看一次位置。</li>
+        <li><strong>现场层：</strong>改变接收机位置或站点组合，观察结果是否符合几何预期。</li>
+      </ol>
+
+      <p>主要误差来源包括室内多径与非视距、发射与接收时钟偏差、站点坐标误差、信号源几何分布，以及不同接收机之间的硬件与协议差异。它们提醒我：定位问题既是数学问题，也是数据质量、设备接口和实验设计问题。</p>
+
+      <h2 id="sec-6">六、证据边界与工程收获</h2>
+
+      <p>目前能够确认的是：我搭建并参与了多接收机、多伪卫星站实验，完成接收机数据解析、伪距与坐标计算，并研究基于基准站观测的差分定位算法；现场设备和布设照片已经公开。由于原始实验数据和完整代码尚未找回，本文不声称具体精度提升，也不把通用模型包装成当年的逐行实现。</p>
+
+      <p>这段经历对后来做企业后端和 AI Agent 仍有直接影响：外部输入永远可能不完整，复杂系统必须分层验证，中间结果必须可观察，最终结论则要和证据强度匹配。</p>
+
+      <blockquote><p>一条可信的数据链路，不是因为最后给出了坐标，而是因为从原始字节到每个中间量都能被解释和复核。</p></blockquote>
+    </article>
+  </main>
+
+  <button id="top-btn" class="icon-btn" aria-label="返回顶部">↑</button>
+  <footer>© 2026 吕绪鑫 · Python 后端与 AI 应用工程实践 · GitHub Pages</footer>
+  <script src="/assets/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="从岗位描述结构化、硬条件过滤、12 维评分、数据权限和结果快照，复盘企业岗位候选人匹配的工程设计。">
+  <title>从岗位描述到可审计的候选人匹配 · 吕绪鑫</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+</head>
+<body>
+  <div id="progress"></div>
+
+  <nav class="site-nav">
+    <a class="brand" href="/">吕绪鑫</a>
+    <div class="nav-links">
+      <a href="/">首页</a>
+      <a href="/projects/">项目</a>
+      <a href="/posts/" class="active">文章</a>
+      <a href="/about.html">关于</a>
+    </div>
+    <div class="nav-right">
+      <button id="theme-toggle" class="icon-btn" aria-label="切换明暗主题">🌙</button>
+      <a class="icon-btn" href="https://github.com/silaslv" target="_blank" rel="noopener" aria-label="GitHub">🐙</a>
+    </div>
+  </nav>
+
+  <aside class="toc">
+    <div class="toc-title">目录</div>
+    <a href="#sec-1">一、问题不只是算分</a>
+    <a href="#sec-2">二、拆分模型与后端</a>
+    <a href="#sec-3">三、硬条件和软条件</a>
+    <a href="#sec-4">四、权限与可审计性</a>
+    <a href="#sec-5">五、失败路径与评测</a>
+    <a href="#sec-6">六、个人工作边界</a>
+  </aside>
+
+  <main class="container">
+    <header class="article-header">
+      <a class="back" href="/posts/">← 返回文章列表</a>
+      <h1>从岗位描述到可审计的候选人匹配</h1>
+      <div class="byline">
+        <span class="author">作者：吕绪鑫</span>
+        <span class="sep">·</span>
+        <span>企业 AI 工程实践 · 2026-09-04</span>
+      </div>
+    </header>
+
+    <article class="article-body">
+      <p class="lead">“输入一段岗位描述，推荐合适的人”看起来像一个提示词问题，真正落到企业 HCM 系统里，却同时涉及结构化、检索、评分、权限、结果保存和解释。本文复盘我参与过的一版岗位候选人智能匹配方案，重点说明怎样把模型能力放进可控的业务链路。</p>
+
+      <div class="article-note">工作事实依据本人 Git 提交记录复核。本文只展示脱敏后的架构抽象和示例字段，不包含公司源码、客户名称、真实员工数据或内部接口；示例并非生产代码。</div>
+
+      <h2 id="sec-1">一、问题不只是“算一个匹配分”</h2>
+
+      <p>岗位描述是自然语言，候选人数据却散落在教育、经历、技能、绩效和组织关系等结构中。企业场景还多出三类约束：</p>
+      <ul>
+        <li><strong>硬门槛不能漂移：</strong>学历、地点、经验年限等必要条件必须稳定执行。</li>
+        <li><strong>权限不能由模型决定：</strong>用户能看哪些人、哪些字段，应沿用业务系统的数据权限。</li>
+        <li><strong>结果必须能复现：</strong>需要知道当时用了什么岗位画像、规则版本和候选人数据。</li>
+      </ul>
+
+      <p>如果让模型直接读取所有简历并输出排名，三类问题都会混在一段不可验证的生成结果里。我的设计选择是把链路拆开。</p>
+
+      <h2 id="sec-2">二、模型负责理解，后端负责执行</h2>
+
+      <pre class="flow">岗位描述 / 招聘需求
+        ↓
+LLM 抽取结构化岗位画像
+        ↓
+Schema 校验 + 用户确认
+        ↓
+业务权限限定候选人范围
+        ↓
+Elasticsearch 硬条件过滤
+        ↓
+12 维软条件评分与解释
+        ↓
+结果预览 / 报告 / 多人对比 / 快照</pre>
+
+      <p>模型擅长把“熟悉 Python，有企业系统经验，沟通能力好”转成候选条件；后端擅长判断字段是否合法、执行稳定查询、计算确定性分数并保存过程。用户确认位于二者之间，用于修正模型对岗位语义的误解。</p>
+
+      <p>下面是一个刻意简化的结构示例：</p>
+
+      <pre class="code-block"><code>{
+  "hard_constraints": {
+    "work_city": ["目标城市"],
+    "minimum_years": 3,
+    "required_skills": ["Python"]
+  },
+  "soft_preferences": [
+    {"dimension": "domain_experience", "weight": 0.20},
+    {"dimension": "project_relevance", "weight": 0.18},
+    {"dimension": "skill_depth", "weight": 0.16}
+  ],
+  "evidence_requirements": ["经历字段", "项目字段"]
+}</code></pre>
+
+      <p>生产链路中，字段必须来自白名单，枚举值要映射到业务字典，权重需要归一化，并对缺失条件和互相冲突的条件给出明确错误。结构化不是“把文字换成 JSON”就结束，而是把概率输出压进可验证的契约。</p>
+
+      <h2 id="sec-3">三、硬条件与软条件为什么必须分开</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>类型</th><th>例子</th><th>执行方式</th><th>解释方式</th></tr></thead>
+          <tbody>
+            <tr><td>硬条件</td><td>地点、最低年限、必需资格</td><td>检索过滤，未满足即排除</td><td>显示未满足的具体条件</td></tr>
+            <tr><td>软条件</td><td>领域相关度、项目经验、技能深度</td><td>分维度评分，再按权重汇总</td><td>展示维度分、证据与缺失项</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>硬条件交给 Elasticsearch 等检索系统，是因为查询必须稳定、可分页、可统计；软条件则允许“更像”或“较相关”这样的连续判断。即使软条件使用模型辅助，也不应只保存一个总分。总分背后至少要保留维度得分、权重、依据字段和缺失信息。</p>
+
+      <pre class="code-block"><code># 脱敏后的确定性评分示意
+eligible = search_candidates(permission_scope, hard_constraints)
+
+for person in eligible:
+    dimensions = score_dimensions(person, soft_preferences)
+    total = sum(item.score * item.weight for item in dimensions)
+    save_explanation(person.id, total, dimensions)</code></pre>
+
+      <p>这也让前端的结果预览、详细报告和多人对比有了同一数据来源：列表看总览，报告看证据，对比页按维度横向展开，而不是三套界面各算一次。</p>
+
+      <h2 id="sec-4">四、权限先于检索，快照晚于计算</h2>
+
+      <h3>权限不是 Prompt 的一部分</h3>
+
+      <p>模型不能通过一句“请忽略权限”扩大范围。正确顺序是先由 HCM 现有权限模块计算当前用户可见的组织与人员范围，再将这个范围作为检索条件的一部分。候选人卡片返回前还要按字段权限过滤，避免列表可见但敏感字段越权。</p>
+
+      <h3>保存的不只是最终名单</h3>
+
+      <p>为了复现一次匹配，结果快照至少需要关联以下信息：</p>
+      <ul>
+        <li>用户确认后的岗位画像及其版本。</li>
+        <li>模型、提示模板和结构化契约版本。</li>
+        <li>硬条件查询与当时的数据权限范围标识。</li>
+        <li>评分规则、维度权重及候选人分项结果。</li>
+        <li>创建时间、发起人和后续人工调整记录。</li>
+      </ul>
+
+      <p>这使得“为什么这个人排在前面”可以回到数据和规则，而不是只能回答“模型认为如此”。对于人员数据，快照还应遵循最小化原则：保存复现所需的引用和评分依据，不复制无关敏感字段。</p>
+
+      <h2 id="sec-5">五、失败路径比理想流程更重要</h2>
+
+      <p>这类功能最容易在演示中显得顺畅，在真实数据上暴露边界。实现时需要显式处理：</p>
+      <ul>
+        <li><strong>结构不合法：</strong>拒绝进入检索，返回具体字段错误，允许用户重新生成或手工修改。</li>
+        <li><strong>条件过严：</strong>区分“权限范围内无人”和“硬条件过滤后无人”，不能暗自放宽门槛。</li>
+        <li><strong>资料缺失：</strong>缺失不是零能力，评分中应单独标记“证据不足”。</li>
+        <li><strong>权限变化：</strong>再次查看历史结果时重新校验当前权限，而不是凭旧快照泄露信息。</li>
+        <li><strong>模型超时或漂移：</strong>结构化阶段允许重试，确定性查询和历史结果不依赖模型在线。</li>
+      </ul>
+
+      <p>评测也应按链路分层，而不是只看推荐结果“像不像”：结构化字段合法率、硬条件执行正确性、越权数据暴露、相同版本下的可复现性、各阶段延迟和人工修正率，分别对应不同故障。由于真实员工数据和客户指标不宜公开，本文不提供未经脱敏与授权的业务数值。</p>
+
+      <h2 id="sec-6">六、我的工作边界与这次实践的结论</h2>
+
+      <p>我独立实现过一版岗位与候选人智能匹配验证方案，完成了岗位需求的硬软条件拆分和匹配结果生成；随后参与正式方案的前后端联调，覆盖结果预览、画像报告、对话列表与多人对比。相关工作时间和范围已通过本地 Git 提交梳理复核，商业代码不公开。</p>
+
+      <p>这次实践最重要的结论，不是某个 Prompt 或某一种评分公式，而是把系统分成两部分：允许模型在“理解”上发挥弹性，同时让权限、过滤、计算、保存与审计保持确定。</p>
+
+      <blockquote><p>企业 AI 的可用性，不只取决于模型能否给出好答案，更取决于答案怎样进入一条可校验、可解释、可追溯的业务链路。</p></blockquote>
+    </article>
+  </main>
+
+  <button id="top-btn" class="icon-btn" aria-label="返回顶部">↑</button>
+  <footer>© 2026 吕绪鑫 · Python 后端与 AI 应用工程实践 · GitHub Pages</footer>
+  <script src="/assets/main.js"></script>
+</body>
+</html>

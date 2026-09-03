@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="从 llm-assistant 的 Agent Loop、命令策略、路径边界、人工确认与审计日志，拆解本地 LLM Agent 的安全工程。">
+  <title>本地 LLM Agent 如何安全地调用系统工具 · 吕绪鑫</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+</head>
+<body>
+  <div id="progress"></div>
+
+  <nav class="site-nav">
+    <a class="brand" href="/">吕绪鑫</a>
+    <div class="nav-links">
+      <a href="/">首页</a>
+      <a href="/projects/">项目</a>
+      <a href="/posts/" class="active">文章</a>
+      <a href="/about.html">关于</a>
+    </div>
+    <div class="nav-right">
+      <button id="theme-toggle" class="icon-btn" aria-label="切换明暗主题">🌙</button>
+      <a class="icon-btn" href="https://github.com/silaslv" target="_blank" rel="noopener" aria-label="GitHub">🐙</a>
+    </div>
+  </nav>
+
+  <aside class="toc">
+    <div class="toc-title">目录</div>
+    <a href="#sec-1">一、先定义风险边界</a>
+    <a href="#sec-2">二、Agent Loop 如何收口</a>
+    <a href="#sec-3">三、三层执行防线</a>
+    <a href="#sec-4">四、流式调用的工程细节</a>
+    <a href="#sec-5">五、审计与验证</a>
+    <a href="#sec-6">六、局限与下一步</a>
+  </aside>
+
+  <main class="container">
+    <header class="article-header">
+      <a class="back" href="/posts/">← 返回文章列表</a>
+      <h1>本地 LLM Agent 如何安全地调用系统工具</h1>
+      <div class="byline">
+        <span class="author">作者：吕绪鑫</span>
+        <span class="sep">·</span>
+        <span>Agent 工程实践 · 2026-09-04</span>
+      </div>
+    </header>
+
+    <article class="article-body">
+      <p class="lead">让模型回答问题并不难，难的是允许它读取文件、写入内容、执行命令之后，仍然保证行为可控。本文基于我的公开项目 <a href="https://github.com/silaslv/llm-assistant" target="_blank" rel="noopener">llm-assistant</a>，说明我怎样把不确定的模型输出，接到需要确定性的本地系统操作上。</p>
+
+      <div class="article-note">本文讨论的是应用层防护，不等价于操作系统沙箱。文中的结构与行为可以在公开仓库中核对；涉及密钥、私人目录和真实审计内容的示例均已省略。</div>
+
+      <h2 id="sec-1">一、先定义风险边界</h2>
+
+      <p>本地 Agent 的风险不只来自模型“答错”。一旦接入工具，错误会从文本层进入系统层：误删文件、覆盖配置、读取凭据，或者把工具返回的不可信文本再次当成指令执行。我的威胁模型主要覆盖四类问题：</p>
+      <ul>
+        <li><strong>破坏性命令：</strong>删除根目录、格式化磁盘、覆盖块设备、关机重启等不可恢复动作。</li>
+        <li><strong>敏感数据访问：</strong>密钥、云凭据、环境变量文件，以及系统伪文件系统中的内容。</li>
+        <li><strong>权限边界漂移：</strong>一次普通对话，不能因为模型连续调用工具而悄悄扩大授权范围。</li>
+        <li><strong>提示注入：</strong>网页、文件和工具输出都属于不可信输入，不能改变系统级规则。</li>
+      </ul>
+
+      <p>因此，系统提示词只是第一道软约束；真正的执行权必须掌握在应用代码里。</p>
+
+      <pre class="flow">PyQt6 / CLI / KDE Plasma
+          ↓
+       llm_core
+          ↓
+Agent Loop ──→ 模型服务（HTTP / SSE）
+          ↓
+工具参数解析 → 安全策略 → 人工确认 → 执行器
+                                  ↓
+                              审计日志</pre>
+
+      <h2 id="sec-2">二、Agent Loop 如何收口</h2>
+
+      <p><code>AgentLoop</code> 负责“模型—工具—模型”的多轮循环。模型第一次回答可能包含普通文本，也可能包含一个或多个工具调用；应用执行通过校验的调用，再把结果作为 tool message 放回上下文，直到模型给出最终答案。</p>
+
+      <p>这里有三个有意设置的边界：</p>
+      <ol>
+        <li><strong>限制工具轮数。</strong>轮数来自配置，避免模型无限调用、费用失控或在错误路径上循环。</li>
+        <li><strong>解析失败不猜参数。</strong>工具参数不是合法 JSON 时退化为空对象，让工具校验明确失败，而不是尝试修补后执行。</li>
+        <li><strong>到达上限后关闭工具。</strong>最后再请求一次不带工具定义的模型响应，只允许生成说明文字。</li>
+      </ol>
+
+      <pre class="code-block"><code># 与公开实现一致的简化伪代码
+for _ in range(max_tool_rounds):
+    reply = model.chat(messages, tools=tool_definitions)
+    if not reply.tool_calls:
+        return reply.text
+
+    messages.append(reply)
+    for call in reply.tool_calls:
+        args = parse_json_or_empty(call.arguments)
+        result = tool_executor.execute(call.name, args)
+        messages.append(as_tool_message(call.id, result))
+
+# 达到上限：模型只能总结，不能继续操作
+return model.chat(messages, tools=None).text</code></pre>
+
+      <p>项目还兼容少数模型输出的文本命令，但入口刻意做得很窄：只有整个响应严格匹配约定格式时才会转换为工具调用。说明文字中偶然出现的一段命令，不会被当成可执行动作。</p>
+
+      <h2 id="sec-3">三、三层执行防线</h2>
+
+      <h3>第一层：不可放行的危险模式</h3>
+
+      <p><code>CommandValidator</code> 在执行前检查命令。删除根目录、<code>mkfs</code>、向设备写入、下载后直接交给 shell、fork bomb 等模式直接拒绝。这类动作即使用户点击确认也不会执行，因为一次误确认不应绕过系统底线。</p>
+
+      <h3>第二层：路径与敏感文件策略</h3>
+
+      <p>文件工具把路径规范化后再判断访问范围。系统目录写入默认阻止；<code>.ssh</code>、<code>.aws</code>、<code>.kube</code> 等敏感目录，以及 <code>.env</code>、<code>credentials.json</code> 等常见凭据文件也有独立规则。对工作目录之外的一般读取，则进入确认流程。</p>
+
+      <p>先规范化再判断很重要，否则 <code>../</code>、符号链接或相对路径可能让表面安全的输入越过边界。</p>
+
+      <h3>第三层：显式确认，并且默认拒绝</h3>
+
+      <p>安全但会改变状态的命令、文件写入，以及越出常规范围的读取，需要通过统一确认回调。执行器并不假设所有界面都实现了弹窗：如果调用方没有注册确认处理器，结果是拒绝，而不是自动通过。这是典型的 fail closed。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>动作</th><th>处理策略</th><th>原因</th></tr></thead>
+          <tbody>
+            <tr><td>查询当前目录、读取工作区普通文件</td><td>按工具规则执行</td><td>低风险、范围明确</td></tr>
+            <tr><td>普通命令、文件写入、范围外读取</td><td>必须确认</td><td>可能改变状态或扩大数据范围</td></tr>
+            <tr><td>根目录删除、设备覆盖、系统敏感写入</td><td>直接拒绝</td><td>风险不可由一次确认抵消</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="sec-4">四、流式工具调用不是“逐字打印”</h2>
+
+      <p>SSE 流式响应里，一个工具调用的名称和 JSON 参数可能被拆成多个片段，多个调用还可能交错到达。实现不能收到一段就执行，而要按调用索引累计片段，流结束后排序、组装和解析。</p>
+
+      <pre class="code-block"><code>chunks[index].name += delta.name
+chunks[index].arguments += delta.arguments
+
+for index in sorted(chunks):
+    call = finalize(chunks[index])
+    emit("tool_call", call)
+    emit("tool_result", execute_after_policy_check(call))</code></pre>
+
+      <p>界面层收到的不是混杂字符串，而是 <code>thinking</code>、<code>text</code>、<code>tool_call</code>、<code>tool_result</code>、<code>error</code>、<code>done</code> 等事件。这样 CLI、桌面端和 Plasma 组件可以复用同一核心，同时各自决定怎样展示状态。</p>
+
+      <h2 id="sec-5">五、审计日志要能追踪，也要避免二次泄漏</h2>
+
+      <p>每次工具动作都记录工具名、时间、成功状态和有限长度的结果摘要，日志文件权限设置为仅当前用户可读写。与此同时，<code>password</code>、<code>token</code>、<code>secret</code>、<code>api_key</code>、<code>authorization</code> 等字段会被脱敏；正文内容只记录长度，不原样落盘。</p>
+
+      <p>这解决的是两个相反的要求：出了问题要能回看调用链，但审计本身不能变成新的敏感信息仓库。</p>
+
+      <p>验证不只覆盖“正常能用”，还要覆盖“危险时确实拒绝”。当前公开仓库有 65 个单元测试，并通过 GitHub Actions 持续运行，重点包括危险命令不可确认放行、无确认处理器时默认拒绝、敏感路径保护、流式参数拼接和多轮工具交互。代码与最新测试状态可分别在 <a href="https://github.com/silaslv/llm-assistant" target="_blank" rel="noopener">仓库</a>和 <a href="https://github.com/silaslv/llm-assistant/actions" target="_blank" rel="noopener">Actions</a> 中核验。</p>
+
+      <h2 id="sec-6">六、当前方案的局限与下一步</h2>
+
+      <p>应用层策略能显著减少误操作，但它不是完整隔离。正则规则可能漏掉等价命令，进程仍继承当前用户权限，第三方工具也可能带来自己的风险。因此下一步更重要的不是继续堆关键词，而是缩小能力面：</p>
+      <ul>
+        <li>优先使用参数化工具替代任意 shell，把可执行动作变成有限集合。</li>
+        <li>将高风险工具放入独立低权限进程，结合沙箱或容器限制文件与网络访问。</li>
+        <li>为每次授权增加作用域和有效期，而不是把一次确认变成永久信任。</li>
+        <li>继续用攻击样例和回归测试检验策略，而不是只验证正常路径。</li>
+      </ul>
+
+      <blockquote><p>Agent 的能力来自工具，可信度来自边界。模型可以提出动作，但应用必须保留最终执行权。</p></blockquote>
+    </article>
+  </main>
+
+  <button id="top-btn" class="icon-btn" aria-label="返回顶部">↑</button>
+  <footer>© 2026 吕绪鑫 · Python 后端与 AI 应用工程实践 · GitHub Pages</footer>
+  <script src="/assets/main.js"></script>
+</body>
+</html>
